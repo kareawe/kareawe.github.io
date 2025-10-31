@@ -455,29 +455,27 @@
                 height: 180px;
             }
         }
-/* PDF 출력 최적화 */
+        /* PDF 출력 최적화 */
         @media print {
-            body {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                color: #333;
+            /* 모든 색상과 배경 유지 */
+            * {
                 print-color-adjust: exact;
                 -webkit-print-color-adjust: exact;
             }
 
-            header {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                padding: 40px 20px;
-                page-break-after: always;
+            body {
                 print-color-adjust: exact;
                 -webkit-print-color-adjust: exact;
+            }
+
+            /* 페이지 나누기 최적화 */
+            header {
+                page-break-after: always;
             }
 
             .section {
                 page-break-inside: avoid;
-                margin: 20px 0;
-                padding: 30px;
-                box-shadow: none;
-                border: 1px solid #ddd;
+                margin: 30px 0;
             }
 
             .section h2 {
@@ -486,52 +484,26 @@
 
             .project-card, .skill-category, .cert-card {
                 page-break-inside: avoid;
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
             }
 
-            .projects, .skills, .certifications {
-                page-break-inside: avoid;
-            }
-
-            /* 각 주요 섹션 후 페이지 나누기 */
-            .section:has(h2:contains("About Me")) {
-                page-break-after: avoid;
-            }
-
-            .section:has(h2:contains("Tech Stack")) {
+            /* Tech Stack 섹션 후 페이지 나누기 */
+            .section:nth-of-type(2) {
                 page-break-after: always;
             }
 
-            .section:has(h2:contains("Projects")) {
+            /* Projects 섹션 후 페이지 나누기 */
+            .section:nth-of-type(3) {
                 page-break-after: always;
             }
 
             footer {
                 page-break-before: avoid;
-                margin-top: 30px;
-                background: #1a1a2e;
-                padding: 20px;
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
             }
 
-            /* 애니메이션 제거 */
+            /* 애니메이션만 제거 (레이아웃은 유지) */
             *, *::before, *::after {
                 animation: none !important;
                 transition: none !important;
-            }
-
-            /* 링크 URL 표시 */
-            a[href^="http"]:after {
-                content: " (" attr(href) ")";
-                font-size: 0.8em;
-                color: #666;
-            }
-
-            .social-links a:after,
-            .project-link:after {
-                content: "";
             }
         }
 
