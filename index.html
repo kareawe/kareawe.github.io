@@ -455,6 +455,80 @@
                 height: 180px;
             }
         }
+           @media print {
+
+        /* 전체 배경은 흰색으로 */
+        body {
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* 컨테이너 폭을 A4에 맞게 */
+        .container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        /* 헤더의 위아래 여백 줄이기 (첫 페이지 공간 확보) */
+        header {
+            padding: 40px 20px 30px;
+            background: none !important;
+            color: #000;
+        }
+
+        /* 그라데이션, 그림자, 애니메이션 제거 (인쇄시 어색) */
+        .section {
+            background: #fff !important;
+            box-shadow: none !important;
+            margin: 15px 0;
+            padding: 25px 20px;
+            page-break-inside: avoid;   /* 섹션이 중간에 안 잘리게 */
+        }
+
+        /* 좌측 컬러 바 없애기 */
+        .section::before {
+            display: none !important;
+        }
+
+        /* 프로젝트 카드도 한 덩어리로 */
+        .project-card {
+            page-break-inside: avoid;
+            border: 1px solid #ddd;
+            box-shadow: none;
+        }
+
+        /* 그리드가 PDF에서 너무 촘촘해지는 걸 방지 */
+        .projects {
+            display: block;
+        }
+        .project-card {
+            margin-bottom: 16px;
+        }
+
+        /* 인쇄에서 필요 없는 푸터 문구나 링크 숨기기 원하면 */
+        footer {
+            page-break-inside: avoid;
+        }
+
+        /* 링크 밑줄/주소 출력 안 하도록 */
+        a {
+            text-decoration: none !important;
+            color: #000 !important;
+        }
+
+        /* 애니메이션 제거 */
+        * {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        /* 이미지 넘치지 않게 */
+        img {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+    }
     </style>
 </head>
 <body>
