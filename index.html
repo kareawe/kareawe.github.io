@@ -455,27 +455,41 @@
                 height: 180px;
             }
         }
-        /* PDF 출력 최적화 */
+/* PDF 출력 최적화 */
         @media print {
             /* 모든 색상과 배경 유지 */
             * {
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
             }
 
             body {
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+                background-color: #1a1a2e !important;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            html {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+                background-color: #1a1a2e !important;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
             }
 
             /* 페이지 나누기 최적화 */
             header {
                 page-break-after: always;
+                background: transparent !important;
             }
 
             .section {
                 page-break-inside: avoid;
                 margin: 30px 0;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
             }
 
             .section h2 {
@@ -484,6 +498,8 @@
 
             .project-card, .skill-category, .cert-card {
                 page-break-inside: avoid;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
             }
 
             /* Tech Stack 섹션 후 페이지 나누기 */
