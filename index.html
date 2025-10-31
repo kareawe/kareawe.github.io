@@ -455,73 +455,118 @@
                 height: 180px;
             }
         }
-@media print {
-    body {
-        background: #ffffff !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
+/* PDF 출력 최적화 */
+        @media print {
+            body {
+                background: white;
+                color: #333;
+            }
 
-    .container {
-        max-width: 100%;
-        padding: 0;
-    }
+            .container {
+                max-width: 100%;
+                padding: 0;
+            }
 
-    header {
-        padding: 30px 20px 25px;  /* 40 → 30으로 살짝 줄임 */
-        background: none !important;
-        color: #000;
-        page-break-after: avoid;  /* 헤더 끝나고 바로 안 잘리게 */
-    }
+            header {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                padding: 40px 20px;
+                page-break-after: always;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
 
-    .section {
-        background: #fff !important;
-        box-shadow: none !important;
-        margin: 15px 0;
-        padding: 25px 20px;
-        page-break-inside: avoid;
-    }
+            .section {
+                page-break-inside: avoid;
+                margin: 20px 0;
+                padding: 30px;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
 
-    .section::before {
-        display: none !important;
-    }
+            .section h2 {
+                page-break-after: avoid;
+            }
 
-    /* 프로젝트 섹션 전체가 중간에 안 잘리게 한 번 더 묶기 */
-    .section:nth-of-type(4),
-    .projects,
-    .project-card {
-        page-break-inside: avoid;
-    }
+            .project-card, .skill-category, .cert-card {
+                page-break-inside: avoid;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
 
-    .projects {
-        display: block;
-    }
-    .project-card {
-        margin-bottom: 16px;
-        border: 1px solid #ddd;
-        box-shadow: none;
-    }
+            .projects, .skills, .certifications {
+                page-break-inside: avoid;
+            }
 
-    footer {
-        page-break-inside: avoid;
-    }
+            /* 각 주요 섹션 후 페이지 나누기 */
+            .section:has(h2:contains("About Me")) {
+                page-break-after: avoid;
+            }
 
-    a {
-        text-decoration: none !important;
-        color: #000 !important;
-    }
+            .section:has(h2:contains("Tech Stack")) {
+                page-break-after: always;
+            }
 
-    * {
-        animation: none !important;
-        transition: none !important;
-    }
+            .section:has(h2:contains("Projects")) {
+                page-break-after: always;
+            }
 
-    img {
-        max-width: 100% !important;
-        height: auto !important;
-    }
-}
+            footer {
+                page-break-before: avoid;
+                margin-top: 30px;
+                background: #1a1a2e;
+                padding: 20px;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
 
+            /* 애니메이션 제거 */
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            /* 링크 URL 표시 */
+            a[href^="http"]:after {
+                content: " (" attr(href) ")";
+                font-size: 0.8em;
+                color: #666;
+            }
+
+            .social-links a:after,
+            .project-link:after {
+                content: "";
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .profile-section {
+                flex-direction: column;
+            }
+
+            .profile-info {
+                text-align: center;
+            }
+            
+            .section {
+                padding: 30px 25px;
+            }
+
+            .projects {
+                grid-template-columns: 1fr;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .badges {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
