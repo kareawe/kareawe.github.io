@@ -458,13 +458,10 @@
 /* PDF 출력 최적화 */
         @media print {
             body {
-                background: white;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
                 color: #333;
-            }
-
-            .container {
-                max-width: 100%;
-                padding: 0;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
             }
 
             header {
