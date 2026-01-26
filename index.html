@@ -150,13 +150,29 @@
             border-radius: 10px;
         }
 
-        .about-content {
-            font-size: 1.15em;
-            line-height: 1.9;
-            color: #444;
-        }
-
+        .about-content { font-size: 1.15em; line-height: 1.9; color: #444; }
         .about-content strong { color: #0f3460; }
+
+        /* ✅ 추가: 프론트 강조 박스 */
+        .focus-box {
+            margin-top: 25px;
+            padding: 22px;
+            background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(0,255,136,0.10));
+            border-radius: 15px;
+            border-left: 5px solid #00d4ff;
+        }
+        .focus-box h3 {
+            color: #0f3460;
+            margin-bottom: 10px;
+            font-size: 1.25em;
+        }
+        .focus-list {
+            margin-top: 10px;
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+        .focus-list b { color: #0f3460; }
 
         .skills {
             display: grid;
@@ -279,10 +295,33 @@
 
         .project-card p {
             color: #555;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             line-height: 1.7;
             position: relative;
             z-index: 1;
+        }
+
+        /* ✅ 추가: 프로젝트 프론트 기여 리스트 */
+        .fe-contrib {
+            margin: 12px 0 16px;
+            padding: 14px 14px 14px 16px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        .fe-contrib .title {
+            font-weight: 700;
+            color: #0f3460;
+            margin-bottom: 8px;
+            font-size: 0.98em;
+        }
+        .fe-contrib ul {
+            padding-left: 18px;
+            color: #555;
+            line-height: 1.7;
+            font-size: 0.98em;
         }
 
         .project-tech {
@@ -398,9 +437,6 @@
             body, html {
                 background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
                 background-color: #1a1a2e !important;
-                print-color-adjust: exact !important;
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
             }
 
             header { page-break-after: always; background: transparent !important; }
@@ -408,21 +444,10 @@
             .section {
                 page-break-inside: avoid;
                 margin: 30px 0;
-                print-color-adjust: exact !important;
-                -webkit-print-color-adjust: exact !important;
             }
 
             .section h2 { page-break-after: avoid; }
-
             .project-card, .skill-category, .cert-card { page-break-inside: avoid; }
-
-            /* Tech Stack 섹션 후 페이지 나누기 */
-            .section:nth-of-type(2) { page-break-after: always; }
-
-            /* Projects 섹션 후 페이지 나누기 */
-            .section:nth-of-type(4) { page-break-after: always; }
-
-            footer { page-break-before: avoid; }
 
             *, *::before, *::after {
                 animation: none !important;
@@ -438,14 +463,14 @@
                 <div class="profile-img">K</div>
                 <div class="profile-info">
                     <h1>김민재(kareawe)</h1>
-                    <!-- ✅ 프론트 중심 Tagline -->
-                    <p class="tagline">Front-End Developer · UX-focused · Data-informed</p>
-
-                    <!-- ✅ 배지도 프론트 중심으로 -->
+                    <p class="tagline">Front-End Developer & Data Scientist</p>
                     <div class="badges">
-                        <span class="badge">React · TypeScript</span>
+                        <span class="badge">React Developer</span>
+                        <span class="badge">AI/ML Engineer</span>
+                        <span class="badge">Finance Data Analyst</span>
+                        <!-- ✅ 추가: 프론트 강조 배지(기존 유지 + 추가) -->
                         <span class="badge">UX & Interaction</span>
-                        <span class="badge">Performance / Quality</span>
+                        <span class="badge">Admin Dashboard</span>
                     </div>
                 </div>
             </div>
@@ -456,93 +481,99 @@
             </div>
         </header>
 
-        <!-- ✅ About: 프론트 엔지니어로 읽히게 전체 교체 -->
         <div class="section">
             <h2>About Me</h2>
             <div class="about-content">
+                <!-- ✅ 기존 내용 유지 -->
                 <p>
-                    안녕하세요! <strong>사용자가 기대한 대로 반응하는 화면</strong>을 만드는 프론트엔드 개발자 김민재입니다.
+                    안녕하세요! <strong>데이터 기반 의사결정</strong>과 <strong>직관적인 사용자 경험</strong>에 열정을 가진 개발자입니다.
                 </p>
                 <p style="margin-top: 15px;">
-                    저는 기능을 “구현”하는 것에서 끝내지 않고, <strong>입력 → 처리 → 피드백 → 완료</strong> 흐름이 끊기지 않도록
-                    인터랙션과 상태 변화를 설계합니다. 폼 검증, 로딩/에러/빈 상태, 라우팅 전환, 테이블/리스트 UX처럼
-                    실서비스에서 자주 깨지는 지점을 기준으로 UI를 안정적으로 만듭니다.
+                    금융 데이터 분석부터 AI/ML 모델링, 그리고 프론트엔드 개발까지 폭넓은 경험을 보유하고 있습니다. 
+                    특히 <strong>LLM(Large Language Models)</strong>과 <strong>RAG(Retrieval-Augmented Generation)</strong> 기술을 활용한 
+                    실용적인 솔루션 개발에 관심이 많습니다.
                 </p>
                 <p style="margin-top: 15px;">
-                    또한 데이터 분석 경험을 바탕으로 <strong>지표 기반 개선</strong>과 <strong>설득 가능한 UI 결정</strong>을 선호합니다.
-                    (필요한 경우에만 LLM/RAG 같은 기술을 제품 문제 해결의 수단으로 연결합니다.)
+                    <strong>Python, TensorFlow, PyTorch</strong>를 활용한 딥러닝 모델 개발과 
+                    <strong>React, TypeScript</strong>를 이용한 인터랙티브한 대시보드 구축 경험이 있습니다.
                 </p>
+
+                <!-- ✅ 추가: 프론트 중심 설명 블록 -->
+                <div class="focus-box">
+                    <h3>Frontend Focus</h3>
+                    <div class="focus-list">
+                        <div>• <b>예측 가능한 UX</b>: 사용자가 클릭/입력했을 때 “기대하는 반응”이 나오도록 흐름을 먼저 정의합니다.</div>
+                        <div>• <b>상태 설계</b>: Loading / Empty / Error / Retry 상태를 표준화해 화면이 멈추지 않게 만듭니다.</div>
+                        <div>• <b>테이블/리스트 UX</b>: 검색·필터·정렬·체크박스 일괄 처리·무한스크롤 등 운영용 UI를 안정적으로 구현합니다.</div>
+                        <div>• <b>유지보수성</b>: 공통 컴포넌트화(TableLayout, Header/Row, Badge 등)로 재사용성과 일관성을 높입니다.</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- ✅ 추가 섹션: 프론트 강점을 “한 방에” 보여주는 Highlights -->
-        <div class="section">
-            <h2>Frontend Highlights</h2>
-            <div class="about-content">
-                <p>아래는 실제 프로젝트에서 반복적으로 해결해온 프론트엔드 핵심 영역입니다.</p>
-                <p style="margin-top: 15px;">
-                    • <strong>테이블 UX</strong>: 검색/필터/정렬, 체크박스 일괄 처리, Sticky Header, Infinite Scroll<br>
-                    • <strong>상태 표준화</strong>: Loading / Empty / Error / Retry / Toast로 “멈추지 않는 흐름” 설계<br>
-                    • <strong>API 연동</strong>: React Query 기반 캐시/동기화, 낙관적 업데이트, 실패 복구 패턴 적용<br>
-                    • <strong>컴포넌트 설계</strong>: 공통 레이아웃/배지/테이블 컴포넌트화로 재사용성과 유지보수성 강화<br>
-                    • <strong>신뢰 UX</strong>: 결과 근거 노출, 단계형 화면(입력→분석→결과), 사용자 불안 요소 제거
-                </p>
-            </div>
-        </div>
-
-        <!-- ✅ Tech Stack: 프론트 심화가 보이게 재구성 -->
         <div class="section">
             <h2>Tech Stack</h2>
             <div class="skills">
+                <!-- ✅ 기존 유지 -->
                 <div class="skill-category">
-                    <h3>Frontend Core</h3>
+                    <h3>Frontend Development</h3>
                     <div class="skill-list">
                         <span class="skill-tag">React</span>
                         <span class="skill-tag">TypeScript</span>
-                        <span class="skill-tag">Vite</span>
-                        <span class="skill-tag">Styled-Components</span>
-                        <span class="skill-tag">React Query</span>
-                        <span class="skill-tag">Axios</span>
+                        <span class="skill-tag">Tailwind CSS</span>
+                        <span class="skill-tag">API Integration</span>
                     </div>
                 </div>
 
+                <!-- ✅ 추가: 프론트 심화 카테고리 -->
                 <div class="skill-category">
-                    <h3>UX Implementation</h3>
+                    <h3>Frontend Advanced</h3>
                     <div class="skill-list">
-                        <span class="skill-tag">Table UX</span>
+                        <span class="skill-tag">React Query</span>
+                        <span class="skill-tag">Zustand</span>
                         <span class="skill-tag">Infinite Scroll</span>
                         <span class="skill-tag">Sticky Header</span>
                         <span class="skill-tag">Form Validation</span>
-                        <span class="skill-tag">Empty/Error States</span>
-                        <span class="skill-tag">Component Architecture</span>
-                    </div>
-                </div>
-
-                <div class="skill-category">
-                    <h3>Performance / Quality</h3>
-                    <div class="skill-list">
-                        <span class="skill-tag">Rendering Optimization</span>
-                        <span class="skill-tag">Memoization</span>
-                        <span class="skill-tag">State Management (Zustand)</span>
                         <span class="skill-tag">Error Handling</span>
-                        <span class="skill-tag">Maintainability</span>
+                    </div>
+                </div>
+
+                <!-- ✅ 기존 유지 -->
+                <div class="skill-category">
+                    <h3>AI & Machine Learning</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">TensorFlow</span>
+                        <span class="skill-tag">PyTorch</span>
+                        <span class="skill-tag">Scikit-learn</span>
+                        <span class="skill-tag">LLM</span>
+                        <span class="skill-tag">RAG</span>
+                        <span class="skill-tag">Time-Series</span>
                     </div>
                 </div>
 
                 <div class="skill-category">
-                    <h3>Data (as a Strength)</h3>
+                    <h3>Data & Finance</h3>
                     <div class="skill-list">
                         <span class="skill-tag">Python</span>
                         <span class="skill-tag">SQL</span>
                         <span class="skill-tag">Pandas</span>
-                        <span class="skill-tag">Data Visualization</span>
-                        <span class="skill-tag">Metric-driven 개선</span>
+                        <span class="skill-tag">NumPy</span>
+                        <span class="skill-tag">Financial Modeling</span>
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <h3>Tools & Others</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">Docker</span>
+                        <span class="skill-tag">Java</span>
+                        <span class="skill-tag">Mustache</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ✅ Projects: AI보다 “프론트 기여/UX 설계”가 먼저 보이게 재작성 -->
         <div class="section">
             <h2>Projects</h2>
             <div class="projects">
@@ -552,18 +583,28 @@
                     </div>
                     <div class="project-content">
                         <span class="project-number">01</span>
-                        <h3>Flow - 문서/용어 관리 어드민 & 검색 UX</h3>
+                        <!-- ✅ 기존 제목/설명 유지 -->
+                        <h3>Flow - RAG 기반 문서 검색 시스템</h3>
                         <p>
-                            <strong>운영자가 빠르게 처리할 수 있는 어드민 UI</strong>에 집중했습니다.
-                            검색·필터·정렬·체크박스 일괄 작업·무한스크롤 등 테이블 UX를 구현하고,
-                            Loading/Empty/Error 상태를 표준화해 <strong>예측 가능한 화면 흐름</strong>을 만들었습니다.
-                            (RAG/Weaviate는 검색 기능의 기반으로 연결)
+                            관리자 페이지 설계 및 개발.
+                            LLM과 벡터DB를 활용한 지능형 문서 검색 시스템. 
+                            문장 청킹 전략 최적화로 <strong>검색 정확도 20% 향상</strong>, Weaviate 기반 RAG 파이프라인 구축.
                         </p>
+
+                        <!-- ✅ 추가: 프론트 기여 요약 -->
+                        <div class="fe-contrib">
+                            <div class="title">Frontend Contribution</div>
+                            <ul>
+                                <li>문서/카테고리 관리용 <b>테이블 UX</b>(검색·필터·정렬·체크박스 일괄·무한스크롤) 구현</li>
+                                <li><b>상태 표준화</b>: Loading/Empty/Error/Retry 패턴으로 운영 흐름 끊김 최소화</li>
+                                <li>공통 컴포넌트(TableLayout, Badge 등)로 <b>일관된 UI</b>와 유지보수성 강화</li>
+                            </ul>
+                        </div>
+
                         <div class="project-tech">
                             <span class="tech-tag">React</span>
                             <span class="tech-tag">TypeScript</span>
-                            <span class="tech-tag">React Query</span>
-                            <span class="tech-tag">Zustand</span>
+                            <span class="tech-tag">Java</span>
                             <span class="tech-tag">RAG</span>
                             <span class="tech-tag">Weaviate</span>
                         </div>
@@ -577,18 +618,29 @@
                     </div>
                     <div class="project-content">
                         <span class="project-number">02</span>
-                        <h3>HomeProtector - 리스크 결과를 “이해 가능한 UI”로</h3>
+                        <!-- ✅ 기존 제목/설명 유지 -->
+                        <h3>HomeProtector - AI 전세사기 탐지</h3>
                         <p>
-                            분석 결과를 사용자가 바로 이해할 수 있도록 <strong>입력 → 분석 → 결과 시각화</strong> 3단계 UX를 설계했습니다.
-                            로딩/실패/재시도, 근거 노출, 결과 요약 카드 등 <strong>신뢰 UX</strong>를 강화했고
-                            컴포넌트 재사용 구조로 유지보수를 쉽게 만들었습니다.
+                            XGBoost + SHAP + Gemini API 결합으로 전세 사기 위험 예측 및 자연어 설명 생성. 
+                            <strong>예측 정확도 12% 향상, 토큰 비용 35% 절감</strong>. React 기반 통합 정보 플랫폼 구축.
                         </p>
+
+                        <!-- ✅ 추가: 프론트 기여 요약 -->
+                        <div class="fe-contrib">
+                            <div class="title">Frontend Contribution</div>
+                            <ul>
+                                <li>입력→분석→결과의 <b>3단계 UX</b> 구성(로딩/진행상태/결과 요약 카드)</li>
+                                <li>SHAP/설명 결과를 사용자가 이해하기 쉬운 <b>시각화 UI</b>로 구성</li>
+                                <li>오류/재시도/근거 노출 등 <b>신뢰 UX</b> 요소 반영</li>
+                            </ul>
+                        </div>
+
                         <div class="project-tech">
-                            <span class="tech-tag">React</span>
-                            <span class="tech-tag">TypeScript</span>
-                            <span class="tech-tag">Dashboard UI</span>
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">XGBoost</span>
                             <span class="tech-tag">SHAP</span>
                             <span class="tech-tag">Gemini API</span>
+                            <span class="tech-tag">React</span>
                         </div>
                         <a href="https://github.com/Commeliers/ai_detect" class="project-link" target="_blank">View Project →</a>
                     </div>
@@ -597,17 +649,27 @@
                 <div class="project-card">
                     <div class="project-content" style="padding-top: 30px;">
                         <span class="project-number">03</span>
-                        <h3>Data-Driven Decision Support - 지도/시각화 기반 인사이트</h3>
+                        <!-- ✅ 기존 제목/설명 유지 -->
+                        <h3>ML 기반 보육시설 배치 최적화</h3>
                         <p>
-                            지역별 데이터를 기반으로 의사결정이 가능한 형태로 <strong>시각화/요약</strong>하는 프로젝트입니다.
-                            “데이터를 보여주는 것”이 아니라 <strong>판단을 돕는 화면 구성</strong>을 목표로,
-                            비교/필터/요약 중심의 결과 표현을 설계했습니다.
+                            머신러닝을 활용하여 지역별 보육 수요와 노동 시장을 분석하고, 
+                            최적의 보육시설 배치 및 인력 배분 방안을 제시하는 의사결정 지원 시스템입니다.
                         </p>
+
+                        <!-- ✅ 추가: 프론트 관점으로 연결 -->
+                        <div class="fe-contrib">
+                            <div class="title">Frontend Angle</div>
+                            <ul>
+                                <li>의사결정을 돕기 위한 <b>요약/비교 중심 정보 구성</b> (한눈에 판단 가능한 화면)</li>
+                                <li>필터/정렬/지도·차트형 결과 표현 등 <b>시각화 설계 관점</b> 강화</li>
+                            </ul>
+                        </div>
+
                         <div class="project-tech">
-                            <span class="tech-tag">Data Visualization</span>
                             <span class="tech-tag">Python</span>
-                            <span class="tech-tag">Geo</span>
-                            <span class="tech-tag">Insight Design</span>
+                            <span class="tech-tag">ML</span>
+                            <span class="tech-tag">Optimization</span>
+                            <span class="tech-tag">Data Visualization</span>
                         </div>
                         <a href="https://github.com/kareawe/ML-Driven-Optimization-of-Childcare-Allocation-and-Labor-Demand" class="project-link" target="_blank">View Project →</a>
                     </div>
@@ -615,7 +677,6 @@
             </div>
         </div>
 
-        <!-- ✅ Certification: 그대로 두되, Learning 문구는 “프론트+제품” 톤으로 -->
         <div class="section">
             <h2>Certifications & Learning</h2>
             <div class="certifications">
@@ -641,23 +702,27 @@
                 </div>
             </div>
 
+            <!-- ✅ 기존 유지 -->
             <div style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,255,136,0.1)); border-radius: 15px; border-left: 5px solid #00d4ff;">
                 <h3 style="color: #0f3460; margin-bottom: 10px;">Currently Learning</h3>
                 <p style="color: #555; font-size: 1.1em;">
-                    <strong>Frontend Architecture & LLM</strong> - UI 구조 설계(재사용/확장/상태표준화)와,
-                    제품 문제를 해결하기 위한 LLM 활용(RAG/평가)을 함께 학습하고 있습니다.
+                    <strong>Large Language Models (LLM)</strong> - 모델 아키텍처, 파인튜닝, 자연어처리 응용에 집중하고 있습니다.
+                </p>
+                <!-- ✅ 추가: 프론트 학습 한 줄 -->
+                <p style="color: #555; font-size: 1.05em; margin-top: 8px;">
+                    <strong>Frontend</strong> - 상태 관리, 테이블 UX, 성능 최적화, 재사용 가능한 컴포넌트 설계에 집중하고 있습니다.
                 </p>
             </div>
         </div>
 
-        <!-- ✅ Contact: 프론트 포지션으로 보이게 문장 변경 -->
         <div class="section">
             <h2>Contact</h2>
             <p style="margin-top: 20px; font-size: 1.15em; line-height: 1.8; color: #555;">
-                프론트엔드 개발(React/TypeScript), 어드민 대시보드, 데이터 기반 UX 개선에 관심이 많습니다.<br>
-                협업/채용/기술 논의가 필요하시면 편하게 연락주세요!<br><br>
-                <strong style="color: #0f3460;">GitHub:</strong>
-                <a href="https://github.com/kareawe" target="_blank" style="color: #00d4ff;">github.com/kareawe</a><br>
+                프로젝트 협업이나 기술적 논의가 필요하시다면 언제든 연락주세요!<br>
+                데이터 사이언스, AI/ML, 그리고 웹 개발 관련 주제에 관심이 많습니다.<br>
+                <!-- ✅ 추가: 프론트 포지션 협업 문장 -->
+                특히 <strong style="color:#0f3460;">React/TypeScript 기반 어드민·대시보드, UX 개선, API 연동</strong> 협업을 좋아합니다.<br><br>
+                <strong style="color: #0f3460;">GitHub:</strong> <a href="https://github.com/kareawe" target="_blank" style="color: #00d4ff;">github.com/kareawe</a><br>
                 <strong style="color: #0f3460;">Email:</strong> kimminjae1573@naver.com
             </p>
         </div>
@@ -667,7 +732,7 @@
                 © 2025 <a href="https://github.com/kareawe" target="_blank">kareawe</a>. Made with 💙 and ☕
             </p>
             <p style="margin-top: 10px; opacity: 0.8;">
-                "Predictable UX, consistent state, data-informed decisions"
+                "Data-driven decisions, intuitive experiences"
             </p>
         </footer>
     </div>
