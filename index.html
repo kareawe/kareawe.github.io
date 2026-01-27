@@ -629,15 +629,28 @@
                         XGBoost + SHAP + Gemini API 결합으로 전세 사기 위험 예측 및 자연어 설명 생성.
                         <strong>예측 정확도 12% 향상, 토큰 비용 35% 절감</strong>. React 기반 통합 정보 플랫폼 구축.
                     </p>
-
                     <div class="fe-contrib">
-                        <div class="title">Frontend Contribution</div>
-                        <ul>
-                            <li>입력 → 분석 → 결과의 <b>3단계 UX</b> 구성(로딩/진행상태/결과 요약 카드)</li>
-                            <li>SHAP/설명 결과를 사용자가 이해하기 쉬운 <b>시각화 UI</b>로 구성</li>
-                            <li>오류/재시도/근거 노출 등 <b>신뢰 UX</b> 요소 반영</li>
-                        </ul>
-                    </div>
+    <div class="title">Frontend Contribution</div>
+    <ul>
+        <li>
+            전세사기 예방을 위해 필요한 등기부등본·공공 데이터를
+            <b>AI 분석 결과 기반으로 직관적으로 이해할 수 있는 UI</b>로 재구성
+        </li>
+        <li>
+            React 환경에서 <b>Kakao 로그인 시 StrictMode로 인한 useEffect 중복 실행</b>을 고려해
+            개발/운영 환경 차이를 반영한 로그인 로직으로 안정화
+        </li>
+        <li>
+            라우팅 전환 및 새로고침 시에도 입력 흐름이 끊기지 않도록
+            <b>Zustand + localStorage</b>를 연동해 사용자 입력 상태를 유지
+        </li>
+        <li>
+            입력 → 분석 → 결과의 <b>3단계 UX</b>를 구성하고,
+            로딩·오류·재시도·근거 노출을 포함한 <b>신뢰 UX 패턴</b> 적용
+        </li>
+    </ul>
+</div>
+
 
                     <div class="project-tech">
                         <span class="tech-tag">Python</span>
