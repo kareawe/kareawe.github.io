@@ -515,7 +515,7 @@
                 <div class="skill-category">
                     <h3>Frontend Development</h3>
                     <div class="skill-list">
-                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">React / Next.js</span>
                         <span class="skill-tag">TypeScript</span>
                         <span class="skill-tag">Tailwind CSS</span>
                         <span class="skill-tag">API Integration</span>
@@ -592,11 +592,29 @@
                         <div class="fe-contrib">
                             <div class="title">Frontend Contribution</div>
                             <ul>
-                                <li>문서/카테고리 관리용 <b>테이블 UX</b>(검색·필터·정렬·체크박스 일괄·무한스크롤) 구현</li>
-                                <li><b>상태 표준화</b>: Loading/Empty/Error/Retry 패턴으로 운영 흐름 끊김 최소화</li>
-                                <li>공통 컴포넌트(TableLayout, Badge 등)로 <b>일관된 UI</b>와 유지보수성 강화</li>
+                                <li>
+                                    문서/카테고리 관리용 <b>테이블 UX</b>(검색·필터·정렬·체크박스 일괄 선택·무한 스크롤) 구현
+                                </li>
+                                <li>
+                                    <b>상태 표준화</b>: Loading / Empty / Error / Retry 패턴으로 운영 중 이탈·혼선을 최소화
+                                </li>
+                                <li>
+                                    TableLayout, Badge 등 <b>공통 컴포넌트</b>를 설계·적용해 UI 일관성과 유지보수성 강화
+                                </li>
+                                <li>
+                                    대량의 문서·검색 결과를 끊김 없이 다루기 위해 <b>상태 구조와 렌더링 단위</b>를 설계
+                                    <ul class="sub">
+                                        <li><b>React Query</b>로 서버 상태와 UI 상태를 분리해 데이터 흐름을 단순화</li>
+                                        <li>검색 조건 변경 시 불필요한 리렌더링을 줄이도록 의존성/메모이제이션 최적화</li>
+                                        <li>대용량 리스트에서 컴포넌트 단위 <b>memo</b> 및 이벤트 핸들러 최적화 적용</li>
+                                        <li>
+                                            등록/수정/삭제 액션이 즉시 UI에 반영되도록 <b>Optimistic Update</b>로 UX 지연 최소화
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </div>
+
 
                         <div class="project-tech">
                             <span class="tech-tag">React</span>
