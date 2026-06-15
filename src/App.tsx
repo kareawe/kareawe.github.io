@@ -1,11 +1,13 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+
 import Nav from './components/Nav'
-import Cursor from './components/Cursor'
 import Home from './pages/Home'
 import Projects from './pages/Projects'
 import Contact from './pages/Contact'
-import GridBackground from './components/GridBackground'
+import Portfolio from './pages/PortfolioPdf'
+import Resume from './pages/Resume'
+import PortfolioExport from './pages/PortfolioExport'
 
 function App() {
   const location = useLocation()
@@ -14,38 +16,34 @@ function App() {
 
   useEffect(() => {
     if (location.pathname !== displayLocation.pathname) {
-      // 다음 프레임에서 실행 (React warning 회피)
       requestAnimationFrame(() => {
         setTransitionStage('exit')
-
         setTimeout(() => {
           setDisplayLocation(location)
           setTransitionStage('enter')
           window.scrollTo(0, 0)
-        }, 300)
+        }, 200)
       })
     }
   }, [location, displayLocation])
 
   return (
     <>
-      <Cursor />
-      <GridBackground />
       <Nav />
       <main
         style={{
           opacity: transitionStage === 'exit' ? 0 : 1,
-          transform:
-            transitionStage === 'exit'
-              ? 'translateY(20px)'
-              : 'translateY(0)',
-          transition: 'opacity 0.3s ease, transform 0.3s ease',
+          transform: transitionStage === 'exit' ? 'translateY(8px)' : 'translateY(0)',
+          transition: 'opacity 0.2s ease, transform 0.2s ease',
         }}
       >
         <Routes location={displayLocation}>
           <Route path="/" element={<Home />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/resume" element={<Resume />} />
+          <Route path="/portfolio-export" element={<PortfolioExport />} />
         </Routes>
       </main>
     </>

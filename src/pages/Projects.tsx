@@ -1,110 +1,198 @@
-import { useState } from 'react'
 import { useReveal } from '../hooks/useReveal'
+import skaxDashboard from './skax-dashboard.png'
 
-const projects = [
+type Trouble = {
+  title: string
+  problem: string
+  cause: string
+  solution: string
+  code?: string
+  result: string
+  /** result 값이 실측 전 placeholder면 true */
+  todo?: boolean
+}
+
+type Project = {
+  title: string
+  subtitle: string
+  role: string
+  ai?: string
+  purpose: string
+  period: string
+  contribution: string // 기여도 %
+  contributionRole: string
+  stack: string[]
+  image?: string
+  imageCaption?: string
+  troubles: Trouble[]
+  link?: string
+}
+
+const projects: Project[] = [
   {
-    num: '01',
-    title: 'Flow — RAG 기반 문서 검색 시스템',
-    role: 'Frontend Engineer',
-    summary: 'LLM과 벡터DB를 활용한 지능형 문서 검색 시스템. 관리자 페이지 설계 및 개발.',
-    highlights: ['검색 정확도 20% 향상', '문장 청킹 전략 최적화', 'Weaviate 기반 RAG 파이프라인'],
-    fe: [
-      '문서/카테고리 관리용 테이블 UX (검색·필터·정렬·체크박스·무한 스크롤) 구현',
-      'Loading / Empty / Error / Retry 상태 표준화 패턴',
-      'TableLayout, Badge 등 공통 컴포넌트 설계로 UI 일관성 강화',
-      'React Query로 서버 상태와 UI 상태 분리, 의존성 최적화',
-      'Optimistic Update로 등록/수정/삭제 UX 지연 최소화',
+    title: '반도체 공정 지연 위험 재조정 시스템',
+    subtitle: 'SK AX 기업 연계 프로젝트',
+    role: 'Backend · AI 연동',
+    ai: '지연 위험 예측 모델(/predict) + 재조정 AI 에이전트(/run) 외부 연동 · risk_id 정합성 동기화',
+    purpose:
+      '외부 AI가 공정 지연 위험을 주기적으로 재예측하고 재조정 에이전트가 대안을 생성하는 환경에서, 끊임없이 변하는 위험 데이터와 외부 AI 호출 사이의 데이터 정합성을 구조적으로 보장하는 백엔드.',
+    period: '2026.04 – 2026.06',
+    contribution: '80',
+    contributionRole: '외부 AI 연동 · 데이터 정합성 설계 · 위험 그룹핑',
+    stack: ['Spring Boot', 'PostgreSQL', 'External AI API', 'Data Integrity'],
+    image: skaxDashboard,
+    imageCaption: 'chipScheduler — 스케줄 재조정 후보안 대시보드',
+    troubles: [
+      {
+        title: '재조정 API가 502로 실패 — 사실은 정합성 문제',
+        problem:
+          '외부 재조정 에이전트(/run) 호출이 502로 실패. 표면상 연동 장애로 보였음.',
+        cause:
+          'AI가 /predict로 주기적 재예측을 돌리면 위험이 새 risk_id로 재생성되는데, 그룹은 예전 risk_id(member_risk_ids)를 그대로 들고 있어 stale 포인터가 됨. (404 = 사라진 위험, 409 = 큐를 떠난 unit) → 서버 장애가 아니라 "보낸 데이터가 현재 시점과 안 맞는다"는 신호.',
+        solution:
+          'AI 호출 실패를 의미 단위로 분리. 404·409는 "현재 큐에서 처리 불가능한 데이터 조건"(NotActionableException → 409 + 사유), 진짜 5xx만 AiAgentException → 502로 올림.',
+        code: `catch (HttpClientErrorException e) {
+  int s = e.getStatusCode().value();
+  if (s == 404 || s == 409)          // 데이터 상태: 처리할 위험 없음
+    throw new NotActionableException(...);
+  throw new AiAgentException(...);    // 진짜 연동 장애만 502
+}`,
+        result: '502 남발 제거 → 로그·모니터링에서 장애 vs 데이터 상태 구분, 원인 추적 가능',
+      },
+      {
+        title: 'unit이 큐를 떠나 409',
+        problem:
+          '404를 막아도, 위험 탐지~호출 사이 unit이 다음 step으로 넘어가면 409("큐에 없음")가 남음.',
+        cause: '공정 진행 속도 — 그룹을 만든 뒤 unit이 process_queue를 벗어남.',
+        solution:
+          'process_queue 필터로 현재 대기열에 있는 unit의 위험만 actionable로 간주. 같은 필터를 그룹 생성(입구)과 재동기화(출구) 양쪽에 동일 적용해 같은 불변 조건을 경로 전체에서 강제. actionable 위험도 성공안도 없는 phantom 그룹은 expire 처리(success 옵션이 있으면 보존).',
+        code: `// 현재 대기열(process_queue)에 있는 unit만 actionable
+var queued = processQueueRepo.findByDistrictAndStep(districtId, stepId);
+representatives = live.stream()
+  .filter(r -> queued.contains(r.getUnit().getUnitId()))
+  .toList();`,
+        result: '409가 날 데이터가 파이프라인에 진입 불가 → success 재조정안 생성까지 전 흐름 검증',
+      },
     ],
-    tags: ['React', 'TypeScript', 'Java', 'RAG', 'Weaviate', 'React Query'],
+  },
+  {
+    title: 'RAG 기반 문서 검색 시스템',
+    subtitle: 'Flow · 팀 프로젝트',
+    role: 'AI · Frontend',
+    ai: 'Weaviate 벡터DB 기반 RAG 파이프라인 + 문장 청킹 전략 최적화',
+    purpose:
+      'LLM과 벡터DB로 사내 문서를 검색하고, 관리자가 문서·카테고리를 손쉽게 운영하도록 돕는 시스템.',
+    period: '2025.07 – 2025.08',
+    contribution: '80',
+    contributionRole: '관리자 화면(FE) 전반 · 검색 결과 UX',
+    stack: ['React', 'TypeScript', 'Java', 'RAG', 'Weaviate', 'React Query'],
+    image: 'https://i.imgur.com/wsPRSOS.png',
+    imageCaption: '문서 관리 화면',
+    troubles: [
+      {
+        title: '과도한 리렌더와 중복 요청',
+        problem: '관리자 테이블에서 필터·입력이 바뀔 때마다 불필요한 리렌더와 중복 API 호출이 발생.',
+        cause: '서버 상태와 UI 상태가 한 곳에서 관리되어 의존성이 얽힘.',
+        solution: 'React Query로 서버 상태를 분리·캐싱하고 쿼리 키를 정규화, 변경 작업에 Optimistic Update 적용.',
+        code: `const { mutate } = useMutation({
+  mutationFn: updateDoc,
+  onMutate: async (next) => {
+    await qc.cancelQueries({ queryKey: ['docs'] })
+    const prev = qc.getQueryData(['docs'])
+    qc.setQueryData(['docs'], (d) => patch(d, next)) // 낙관적 갱신
+    return { prev }
+  },
+  onError: (_e, _v, ctx) => qc.setQueryData(['docs'], ctx.prev),
+})`,
+        result: '체감 지연 최소화 · 중복 요청 감소',
+        todo: true,
+      },
+      {
+        title: 'RAG 검색 정확도 부족',
+        problem: '검색 결과가 질문 의도와 어긋나 정확도가 낮았음.',
+        cause: '청킹 단위가 부적절해 문맥이 끊기거나 과하게 묶임.',
+        solution: '문장 단위 청킹으로 재설계하고 임베딩 전략을 비교 실험해 최적 조합 선정.',
+        result: '검색 정확도 +20%',
+        todo: true,
+      },
+    ],
     link: 'https://github.com/ThunderEleven-Flow',
-    color: '#00d4ff',
-    img: 'https://i.imgur.com/wsPRSOS.png',
   },
   {
-    num: '02',
-    title: 'HomeProtector — AI 전세사기 탐지',
-    role: 'AI + Frontend Engineer',
-    summary: 'XGBoost + SHAP + Gemini API 결합으로 전세 사기 위험 예측 및 자연어 설명 생성.',
-    highlights: ['예측 정확도 12% 향상', '토큰 비용 35% 절감', 'React 기반 통합 정보 플랫폼'],
-    fe: [
-      'AI 분석 결과 기반 직관적 정보 재구성 UI 구성',
-      'Kakao 로그인 StrictMode 중복 실행 이슈 안정화',
-      'Zustand + localStorage 연동으로 라우팅·새로고침에도 입력 상태 유지',
-      '입력 → 분석 → 결과 3단계 UX + 로딩·오류·재시도·근거 노출 신뢰 UX 패턴',
+    title: '전세사기 위험 분석 플랫폼',
+    subtitle: 'HomeProtector · 팀 프로젝트',
+    role: 'AI · Full-Stack',
+    ai: 'XGBoost·SHAP 위험 예측 + Gemini LLM 근거 생성 + OCR 문서 분석',
+    purpose:
+      '전세 계약 전, 등기부등본·시세 데이터를 분석해 사기 위험을 예측하고 그 근거까지 사용자에게 설명하는 플랫폼.',
+    period: '2025.03 – 2025.06',
+    contribution: '80',
+    contributionRole: 'AI 모델링 · OCR 파이프라인 · 결과 화면(FE)',
+    stack: ['Python', 'XGBoost', 'SHAP', 'Gemini API', 'OCR', 'React', 'Zustand'],
+    image: 'https://i.imgur.com/aRaEeSc.png',
+    imageCaption: '분석 결과 화면',
+    troubles: [
+      {
+        title: 'Kakao 소셜 로그인 중복 호출',
+        problem: '소셜 로그인 콜백이 간헐적으로 2번 실행되어 토큰 재발급과 상태 꼬임이 발생.',
+        cause: 'React 18 StrictMode의 개발 모드 이중 마운트로 useEffect 내 로그인 처리가 2회 실행됨.',
+        solution: '1회 실행을 보장하는 ref 가드를 추가하고 로그인 콜백을 effect 의존성에서 분리.',
+        code: `const ran = useRef(false)
+useEffect(() => {
+  if (ran.current) return      // StrictMode 이중 실행 방지
+  ran.current = true
+  handleKakaoLogin(code)
+}, [])`,
+        result: '중복 호출 제거 → 로그인 실패·상태 꼬임 해소',
+      },
+      {
+        title: 'LLM 토큰 비용 과다',
+        problem: 'Gemini로 위험 근거를 생성할 때 토큰 사용량과 호출 비용이 과도하게 발생.',
+        cause: '매 요청마다 전체 SHAP 출력과 문맥을 그대로 프롬프트에 포함.',
+        solution: '상위 기여 변수만 추출해 프롬프트를 구조화하고, 동일 입력에 대한 응답을 캐싱.',
+        result: 'LLM 토큰 비용 약 35% 절감',
+        todo: true,
+      },
+      {
+        title: 'OCR 인식 정확도 저조',
+        problem: '등기부등본 을구의 근저당권·채권최고액 등 핵심 항목이 자주 오인식됨.',
+        cause: '문서 해상도·기울기·레이아웃 편차로 인식 품질이 일정하지 않음.',
+        solution: '이미지 전처리(이진화·기울기 보정)와 추출값 검증 규칙을 추가.',
+        result: '핵심 항목 추출 안정화 → 예측 정확도 +12%',
+        todo: true,
+      },
     ],
-    tags: ['Python', 'XGBoost', 'SHAP', 'Gemini API', 'React', 'Zustand'],
     link: 'https://github.com/Commeliers/commeliers-web',
-    color: '#00ff88',
-    img: 'https://i.imgur.com/aRaEeSc.png',
-  },
-  {
-    num: '03',
-    title: 'ML 기반 보육시설 배치 최적화',
-    role: 'ML Engineer + Frontend Design',
-    summary: '머신러닝으로 지역별 보육 수요와 노동 시장을 분석, 최적 보육시설 배치 의사결정 지원 시스템.',
-    highlights: ['지역별 보육 수요 예측', '최적 배치 알고리즘 구현', '시각화 기반 의사결정 지원'],
-    fe: [
-      '요약/비교 중심 정보 구성 (한눈에 판단 가능한 화면)',
-      '필터/정렬/지도·차트형 결과 표현 등 시각화 설계 관점 강화',
-    ],
-    tags: ['Python', 'ML', 'Optimization', 'Data Visualization'],
-    link: 'https://github.com/kareawe/ML-Driven-Optimization-of-Childcare-Allocation-and-Labor-Demand',
-    color: '#9b59ff',
-    img: '',
   },
 ]
 
 export default function Projects() {
   const revealRef = useReveal()
-  const [active, setActive] = useState<number | null>(null)
 
   return (
-    <div style={{ position: 'relative', zIndex: 2, minHeight: '100vh', padding: '10rem 2rem 6rem' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }} ref={revealRef}>
-        {/* Header */}
-        <div className="reveal" style={{ marginBottom: '5rem' }}>
-          <p style={{
-            fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--cyan)',
-            letterSpacing: '0.25em', marginBottom: '1.5rem', opacity: 0.7,
-          }}>02. SELECTED WORK</p>
-          <h1 style={{
-            fontFamily: 'var(--font-display)', fontWeight: 400,
-            fontSize: 'clamp(3.5rem, 10vw, 8rem)', letterSpacing: '-0.05em',
-            lineHeight: 0.88, display: 'flex', flexDirection: 'column', gap: '0.1em',
-          }}>
-            <span style={{
-              background: 'linear-gradient(135deg, #fff 50%, rgba(255,255,255,0.3))',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              fontWeight: 800,
-            }}>Selected</span>
-            <span style={{
-              color: 'transparent',
-              WebkitTextStroke: '1px rgba(0,212,255,0.5)',
-              fontWeight: 800,
-              letterSpacing: '-0.04em',
-            }}>Work.</span>
+    <div ref={revealRef}>
+      {/* Navy header band */}
+      <section className="band" style={{ paddingTop: '8.5rem', paddingBottom: '3.2rem' }}>
+        <div className="container reveal">
+          <p className="eyebrow" style={{ marginBottom: '0.9rem' }}>Selected Work</p>
+          <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.2rem)', fontWeight: 700, letterSpacing: '-0.04em' }}>
+            핵심 프로젝트
           </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '2rem' }}>
-            <div style={{ width: 40, height: 1, background: 'var(--cyan)', opacity: 0.4 }} />
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text2)', letterSpacing: '0.1em' }}>
-              {projects.length} projects · React · TypeScript · AI/ML
-            </span>
-          </div>
+          <p className="muted" style={{ marginTop: '0.8rem', maxWidth: 600 }}>
+            각 프로젝트를{' '}
+            <strong style={{ color: '#fff' }}>개요·기여도 → 핵심 UI → 트러블슈팅</strong>{' '}
+            순으로 정리했습니다. 트러블슈팅은{' '}
+            <strong style={{ color: '#fff' }}>문제 → 원인 → 해결 → 개선 수치</strong> 흐름을 따릅니다.
+          </p>
         </div>
+      </section>
 
-        {/* Project cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {/* Cards on light body */}
+      <div className="container" style={{ paddingTop: '3rem', paddingBottom: '7rem' }}>
+        <div className="project-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem' }}>
           {projects.map((p, i) => (
-            <div
-              key={p.num}
-              className="reveal"
-              style={{ transitionDelay: `${i * 0.12}s` }}
-            >
-              <ProjectCard
-                project={p}
-                isOpen={active === i}
-                onToggle={() => setActive(active === i ? null : i)}
-              />
+            <div key={p.title} className="reveal project-item">
+              <ProjectCard project={p} index={i + 1} />
             </div>
           ))}
         </div>
@@ -113,181 +201,206 @@ export default function Projects() {
   )
 }
 
-function ProjectCard({
-  project,
-  isOpen,
-  onToggle,
-}: {
-  project: typeof projects[0]
-  isOpen: boolean
-  onToggle: () => void
-}) {
+function ProjectCard({ project, index }: { project: Project; index: number }) {
   return (
-    <div style={{
-      background: 'rgba(13,13,26,0.85)',
-      border: `1px solid ${isOpen ? project.color + '55' : 'var(--border)'}`,
-      borderRadius: '20px',
-      overflow: 'hidden',
-      backdropFilter: 'blur(12px)',
-      transition: 'all 0.4s ease',
-      boxShadow: isOpen ? `0 0 60px ${project.color}15` : 'none',
-    }}>
-      {/* Card header */}
+    <article className="card" style={{ padding: '2rem' }}>
+      {/* Head */}
       <div
-        onClick={onToggle}
-        data-hover
         style={{
-          padding: '2.5rem 2.5rem 2rem',
-          display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: '2rem',
-          cursor: 'none',
-          alignItems: 'start',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: '1rem',
+          marginBottom: project.ai ? '1.2rem' : '1.6rem',
         }}
       >
         <div>
-          {/* Number + Role row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.1rem', flexWrap: 'wrap' }}>
-            <span style={{
-              fontFamily: 'var(--font-mono)', fontSize: '0.65rem',
-              color: project.color, opacity: 0.45, letterSpacing: '0.1em',
-            }}>{project.num}</span>
-            <div style={{ width: 20, height: 1, background: project.color, opacity: 0.25 }} />
-            <span style={{
-              padding: '2px 10px', borderRadius: '4px',
-              background: `${project.color}0d`, border: `1px solid ${project.color}22`,
-              color: project.color, fontSize: '0.65rem', fontFamily: 'var(--font-mono)',
-              letterSpacing: '0.08em',
-            }}>{project.role}</span>
-          </div>
-
-          {/* Title — tall and slim */}
-          <h2 style={{
-            fontFamily: 'var(--font-display)', fontWeight: 300,
-            fontSize: 'clamp(1.4rem, 3vw, 2.2rem)', letterSpacing: '-0.03em',
-            lineHeight: 1.1, marginBottom: '1rem', color: 'var(--text)',
-          }}>
-            {/* Split at em dash to style differently */}
-            {project.title.includes('—') ? (
-              <>
-                <span style={{ fontWeight: 700 }}>{project.title.split('—')[0].trim()}</span>
-                <span style={{ color: project.color, fontWeight: 200, opacity: 0.6 }}> — </span>
-                <span style={{ fontWeight: 300, color: 'var(--text2)', fontSize: '0.85em' }}>{project.title.split('—')[1]?.trim()}</span>
-              </>
-            ) : project.title}
-          </h2>
-
-          <p style={{ color: 'var(--text2)', fontSize: '0.88rem', lineHeight: 1.8, maxWidth: 560, fontWeight: 300 }}>{project.summary}</p>
-
-          {/* Highlights */}
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.2rem', flexWrap: 'wrap' }}>
-            {project.highlights.map(h => (
-              <span key={h} style={{
-                fontSize: '0.7rem', color: 'var(--text2)',
-                fontFamily: 'var(--font-mono)',
-                display: 'flex', alignItems: 'center', gap: 5,
-                padding: '3px 10px', borderRadius: '4px',
-                border: '1px solid var(--border)',
-              }}>
-                <span style={{ fontSize: '0.5rem', color: project.color }}>◆</span> {h}
-              </span>
-            ))}
-          </div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-faint)', marginBottom: '0.5rem' }}>
+            PROJECT {String(index).padStart(2, '0')}
+          </p>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 650, letterSpacing: '-0.02em' }}>{project.title}</h2>
+          <p className="muted" style={{ fontSize: '0.85rem', marginTop: '0.3rem' }}>{project.subtitle}</p>
         </div>
-
-        {/* Toggle button */}
-        <div style={{
-          width: 44, height: 44, borderRadius: '12px',
-          border: `1px solid ${isOpen ? project.color + '50' : 'var(--border)'}`,
-          background: isOpen ? `${project.color}10` : 'transparent',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: isOpen ? project.color : 'var(--text2)',
-          fontSize: '1.4rem', lineHeight: 1,
-          transition: 'all 0.3s ease',
-          transform: isOpen ? 'rotate(45deg)' : 'rotate(0)',
-          flexShrink: 0,
-        }}>+</div>
+        <span className="tag tag-accent" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{project.role}</span>
       </div>
 
-      {/* Expanded content */}
-      <div style={{
-        maxHeight: isOpen ? '800px' : '0',
-        overflow: 'hidden',
-        transition: 'max-height 0.5s cubic-bezier(0.4,0,0.2,1)',
-      }}>
-        <div style={{
-          padding: '2rem 2.5rem 2.5rem',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '2rem',
-          borderTop: `1px solid ${project.color}15`,
-        }}>
-          {/* Image */}
-          {project.img && (
-            <div style={{
-              borderRadius: '12px', overflow: 'hidden',
-              background: '#0a0a14', border: '1px solid var(--border)',
-              height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <img src={project.img} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-            </div>
-          )}
-
-          {/* FE contributions */}
-          <div>
-            <p style={{
-              fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: project.color,
-              letterSpacing: '0.2em', marginBottom: '1.2rem', opacity: 0.7,
-            }}>FRONTEND CONTRIBUTION</p>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {project.fe.map((item, i) => (
-                <li key={i} style={{
-                  display: 'flex', gap: '12px',
-                  fontSize: '0.83rem', color: 'var(--text2)', lineHeight: 1.75,
-                  fontWeight: 300,
-                }}>
-                  <span style={{
-                    color: project.color, flexShrink: 0,
-                    marginTop: '0.5rem', fontSize: '0.4rem',
-                    width: 4, height: 4, borderRadius: '50%',
-                    background: project.color, display: 'inline-block',
-                  }} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Tech + Link */}
-        <div style={{
-          padding: '1.2rem 2rem',
-          borderTop: `1px solid ${project.color}10`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem',
-        }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-            {project.tags.map(tag => (
-              <span key={tag} style={{
-                padding: '3px 10px', borderRadius: '4px',
-                background: 'transparent', border: `1px solid ${project.color}20`,
-                color: 'var(--text2)', fontSize: '0.68rem', fontFamily: 'var(--font-mono)',
-                letterSpacing: '0.05em',
-              }}>{tag}</span>
-            ))}
-          </div>
-          <a href={project.link} target="_blank" rel="noreferrer" data-hover style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
-            color: project.color, fontFamily: 'var(--font-mono)',
-            fontSize: '0.72rem', letterSpacing: '0.1em',
-            transition: 'opacity 0.2s ease', opacity: 0.7,
-            textDecoration: 'none',
+      {project.ai && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            background: 'var(--accent-soft)',
+            border: '1px solid var(--accent-border)',
+            borderRadius: 10,
+            padding: '0.7rem 0.9rem',
+            marginBottom: '1.6rem',
           }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '0.7')}
-          >
-            VIEW ON GITHUB <span style={{ fontSize: '0.9em' }}>↗</span>
+        >
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', fontWeight: 600, color: 'var(--accent)', letterSpacing: '0.06em', flexShrink: 0 }}>
+            AI 핵심
+          </span>
+          <span style={{ fontSize: '0.82rem', color: 'var(--text)' }}>{project.ai}</span>
+        </div>
+      )}
+
+      {/* 1. Overview */}
+      <Block label="개요 · 기여도" en="Overview">
+        <p style={{ marginBottom: '1rem', lineHeight: 1.8 }}>{project.purpose}</p>
+        <div className="ov-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem' }}>
+          <Meta label="개발 기간" value={project.period} />
+          <Meta label="기여도" value={`${project.contribution}%`} sub={project.contributionRole} accent />
+          <Meta label="기술 스택" value={project.stack.join(' · ')} />
+        </div>
+        <style>{`@media (max-width:560px){ .ov-grid{ grid-template-columns: 1fr !important; } }`}</style>
+      </Block>
+
+      {/* 2. Key UI */}
+      {project.image ? (
+        <Block label="핵심 화면" en="Key UI">
+          <figure style={{ margin: 0 }}>
+            <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', background: '#fff' }}>
+              <img src={project.image} alt={project.imageCaption ?? project.title} style={{ width: '100%', maxHeight: 320, objectFit: 'contain' }} />
+            </div>
+            <figcaption style={{ fontSize: '0.72rem', color: 'var(--text-faint)', marginTop: '0.4rem', textAlign: 'center' }}>
+              {project.imageCaption ?? '핵심 화면'}
+            </figcaption>
+          </figure>
+        </Block>
+      ) : (
+        <Block label="핵심 화면" en="Key UI">
+          <div className="media-slot">
+            <span style={{ fontSize: '0.8rem' }}>🖼️ 핵심 UI 캡처</span>
+            <span style={{ fontSize: '0.7rem' }}>가장 공들인 화면 첨부</span>
+          </div>
+        </Block>
+      )}
+
+      {/* 3. Troubleshooting */}
+      <Block label="트러블슈팅" en="Troubleshooting" accent>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {project.troubles.map((t, i) => (
+            <TroubleItem key={i} num={i + 1} trouble={t} />
+          ))}
+        </div>
+      </Block>
+
+      {/* Footer */}
+      {project.link && (
+        <div style={{ marginTop: '1.6rem', paddingTop: '1.3rem', borderTop: '1px solid var(--border)', textAlign: 'right' }}>
+          <a href={project.link} target="_blank" rel="noreferrer" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--accent)' }}>
+            GitHub ↗
           </a>
         </div>
+      )}
+    </article>
+  )
+}
+
+function Block({
+  label,
+  en,
+  accent,
+  children,
+}: {
+  label: string
+  en: string
+  accent?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div className="pblock" style={{ padding: '1.3rem 0', borderTop: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', marginBottom: '1rem' }}>
+        <h3 style={{ fontSize: '0.98rem', fontWeight: 650, color: accent ? 'var(--accent)' : 'var(--text)' }}>{label}</h3>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.08em', color: 'var(--text-faint)', textTransform: 'uppercase' }}>{en}</span>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function Meta({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: boolean }) {
+  return (
+    <div
+      style={{
+        background: 'var(--bg-soft)',
+        border: '1px solid var(--border)',
+        borderRadius: 10,
+        padding: '0.8rem 0.9rem',
+      }}
+    >
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.06em', color: 'var(--text-faint)', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+        {label}
+      </p>
+      <p style={{ fontSize: '0.84rem', fontWeight: 600, color: accent ? 'var(--accent)' : 'var(--text)', lineHeight: 1.45 }}>{value}</p>
+      {sub && <p className="muted" style={{ fontSize: '0.72rem', marginTop: '0.3rem' }}>{sub}</p>}
+    </div>
+  )
+}
+
+function TroubleItem({ num, trouble }: { num: number; trouble: Trouble }) {
+  const rows: { k: string; v: string }[] = [
+    { k: '문제', v: trouble.problem },
+    { k: '원인', v: trouble.cause },
+    { k: '해결', v: trouble.solution },
+  ]
+  return (
+    <div className="trouble" style={{ border: '1px solid var(--border)', borderRadius: 12, padding: '1.1rem 1.2rem', background: 'var(--bg-soft)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.8rem' }}>
+        <span
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: 7,
+            background: 'var(--accent)',
+            color: '#fff',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          {num}
+        </span>
+        <span style={{ fontWeight: 600, fontSize: '0.92rem' }}>{trouble.title}</span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {rows.map((r) => (
+          <div key={r.k} style={{ display: 'grid', gridTemplateColumns: '46px 1fr', gap: '0.7rem' }}>
+            <span style={{ fontSize: '0.74rem', fontWeight: 600, color: 'var(--text-muted)', paddingTop: '0.05rem' }}>{r.k}</span>
+            <span className="muted" style={{ fontSize: '0.85rem', lineHeight: 1.65 }}>{r.v}</span>
+          </div>
+        ))}
+      </div>
+
+      {trouble.code && <pre className="code-block">{trouble.code}</pre>}
+
+      {/* Result */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.55rem',
+          marginTop: '0.9rem',
+          padding: '0.6rem 0.8rem',
+          borderRadius: 9,
+          background: 'var(--accent-soft)',
+          border: '1px solid var(--accent-border)',
+        }}
+      >
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.64rem', fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.05em', flexShrink: 0 }}>
+          개선
+        </span>
+        <span style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text)' }}>{trouble.result}</span>
+        {trouble.todo && (
+          <span className="todo-note" style={{ fontSize: '0.66rem', color: 'var(--text-faint)', marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+            * 실측값 확인
+          </span>
+        )}
       </div>
     </div>
   )
