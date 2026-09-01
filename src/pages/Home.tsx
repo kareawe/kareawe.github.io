@@ -34,9 +34,15 @@ const timeline = [
     active: false,
   },
   {
-    period: '2026.01.06 — 진행 중',
-    title: 'SKALA AI 과정',
-    sub: 'AI 심화 과정 수료 중',
+    period: '2026.01.06 — 2026.06',
+    title: 'SKALA AI 과정 3기',
+    sub: 'AI 심화 과정 수료',
+    active: false,
+  },
+  {
+    period: '2026.07.15 — 재직 중',
+    title: '애커튼테크놀로지서비스',
+    sub: 'AI 혁신 TF팀 · SKAX 제안 AI 개발 및 운영',
     active: true,
   },
 ]

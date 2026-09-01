@@ -48,6 +48,14 @@ const education = [
 
 const career = [
   {
+    period: '2026.07.15 – 재직 중',
+    org: '애커튼테크놀로지서비스',
+    role: 'AI 혁신 TF팀',
+    tasks: [
+      'SKAX 제안 AI 개발 및 운영',
+    ],
+  },
+  {
     period: '2026.04 – 2026.06',
     org: 'SK AX 기업 연계 프로젝트',
     role: 'Backend · AI 연동',
