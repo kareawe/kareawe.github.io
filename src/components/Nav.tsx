@@ -11,11 +11,21 @@ const links = [
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 24)
-    window.addEventListener('scroll', fn)
-    return () => window.removeEventListener('scroll', fn)
+    const fn = () => {
+      setScrolled(window.scrollY > 24)
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      setProgress(max > 0 ? Math.min(window.scrollY / max, 1) : 0)
+    }
+    fn()
+    window.addEventListener('scroll', fn, { passive: true })
+    window.addEventListener('resize', fn)
+    return () => {
+      window.removeEventListener('scroll', fn)
+      window.removeEventListener('resize', fn)
+    }
   }, [])
 
   const onDark = !scrolled
@@ -31,7 +41,6 @@ export default function Nav() {
         ? 'rgba(238,241,247,0.62)'
         : 'var(--text-muted)',
     padding: '0.3rem 0',
-    borderBottom: `2px solid ${isActive ? (onDark ? '#88abff' : 'var(--accent)') : 'transparent'}`,
     transition: 'color 0.2s ease',
   })
 
@@ -53,9 +62,15 @@ export default function Nav() {
         transition: 'background 0.3s ease, border-color 0.3s ease',
       }}
     >
+      <div className="scroll-progress" style={{ transform: `scaleX(${progress})` }} />
       <div
         className="container"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          ['--nav-accent' as string]: onDark ? '#88abff' : 'var(--accent)',
+        }}
       >
         <NavLink
           to="/"
@@ -87,7 +102,7 @@ export default function Nav() {
 
         <nav style={{ display: 'flex', gap: '1.6rem' }} className="desktop-nav">
           {links.map(({ to, label }) => (
-            <NavLink key={to} to={to} end={to === '/'} style={linkStyle}>
+            <NavLink key={to} to={to} end={to === '/'} style={linkStyle} className="nav-link">
               {label}
             </NavLink>
           ))}
@@ -124,6 +139,7 @@ export default function Nav() {
 
       {menuOpen && (
         <div
+          className="mobile-menu"
           style={{
             position: 'fixed',
             inset: 0,
@@ -137,13 +153,14 @@ export default function Nav() {
             zIndex: 99,
           }}
         >
-          {links.map(({ to, label }) => (
+          {links.map(({ to, label }, i) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/'}
               onClick={() => setMenuOpen(false)}
               style={({ isActive }: { isActive: boolean }) => ({
+                ['--d' as string]: `${i * 60}ms`,
                 fontSize: '1.8rem',
                 fontWeight: 600,
                 color: isActive ? 'var(--accent)' : 'var(--text)',

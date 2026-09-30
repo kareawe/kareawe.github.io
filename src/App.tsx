@@ -27,6 +27,16 @@ function App() {
     }
   }, [location, displayLocation])
 
+  // /projects#id 처럼 해시로 들어오면 새 페이지 렌더 후 해당 위치로 이동
+  useEffect(() => {
+    const id = decodeURIComponent(displayLocation.hash.slice(1))
+    if (!id) return
+    const t = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 120)
+    return () => clearTimeout(t)
+  }, [displayLocation])
+
   return (
     <>
       <Nav />
