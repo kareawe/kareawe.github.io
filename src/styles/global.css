@@ -18,7 +18,10 @@
 
   /* Type */
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, -apple-system, 'Noto Sans KR', sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', 'Menlo', monospace;
+  /* 라벨·태그·숫자용 — 한글 폴백이 깨지지 않도록 Pretendard 사용 */
+  --font-mono: var(--font-sans);
+  /* 코드 블록 전용 고정폭 */
+  --font-code: 'JetBrains Mono', 'Cascadia Code', Consolas, 'SF Mono', Menlo, monospace;
 
   --maxw: 980px;
   --radius: 14px;
@@ -220,7 +223,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid #1e2742;
   border-radius: 10px;
   padding: 0.9rem 1rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-code);
   font-size: 0.74rem;
   line-height: 1.65;
   overflow-x: auto;
